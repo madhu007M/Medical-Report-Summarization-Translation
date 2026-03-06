@@ -1,0 +1,50 @@
+# =============================================================================
+# AI Medical Report Interpreter & Community Health Communication Platform
+# requirements.txt
+# =============================================================================
+
+# --- Web Framework & Server ---
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9   # for file uploads in FastAPI
+
+# --- Database ---
+sqlalchemy>=2.0.0
+# For PostgreSQL support (optional), uncomment:
+# psycopg2-binary>=2.9.9
+
+# --- Authentication ---
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+
+# --- AI / NLP ---
+transformers>=4.41.0
+torch>=2.0.0
+sentencepiece>=0.1.99      # required by MarianMT tokenizers
+sacremoses>=0.0.53         # required by some MarianMT models
+
+# --- OCR ---
+easyocr>=1.7.1
+# pytesseract>=0.3.10     # optional Tesseract fallback
+Pillow>=10.0.0
+pdfplumber>=0.10.3
+PyMuPDF>=1.24.0            # fitz — PDF-to-image rendering for OCR
+
+# --- Text-to-Speech ---
+gTTS>=2.5.1
+
+# --- Translation fallback ---
+googletrans==4.0.0rc1      # unofficial Google Translate (fallback only)
+
+# --- Twilio (SMS / WhatsApp) ---
+twilio>=9.0.0
+
+# --- Frontend ---
+streamlit>=1.35.0
+requests>=2.31.0
+
+# --- Utilities ---
+python-dotenv>=1.0.1       # load .env files for local development
+pydantic[email]>=2.7.0     # email validation in doctor registration
+httpx>=0.27.0              # async HTTP (used by some HuggingFace utilities)
+numpy>=1.26.0

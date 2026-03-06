@@ -1,0 +1,45 @@
+# =============================================================================
+# Minimal requirements — run the platform without heavy ML downloads.
+#
+# Features available in minimal mode:
+#   ✅ Report upload (plain text & simple image OCR via Pillow)
+#   ✅ Rule-based medical summarization fallback
+#   ✅ Risk detection (glucose, BP, Hb, WBC, SpO2, temperature)
+#   ✅ Symptom chatbot
+#   ✅ Community outbreak alerts
+#   ✅ Doctor dashboard with JWT authentication
+#   ✅ Streamlit frontend
+#
+# Features disabled in minimal mode (need full requirements.txt):
+#   ❌ AI-powered summarization  (needs torch + transformers)
+#   ❌ MarianMT translation      (needs torch + transformers + sentencepiece)
+#   ❌ EasyOCR                   (needs easyocr)
+#   ❌ PDF-to-image OCR          (needs PyMuPDF)
+#   ❌ gTTS voice audio          (needs gtts + internet)
+#   ❌ Twilio SMS/WhatsApp       (needs twilio + credentials)
+# =============================================================================
+
+# --- Web Framework & Server ---
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+
+# --- Database ---
+sqlalchemy>=2.0.0
+
+# --- Authentication ---
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+
+# --- OCR (basic — plain text + native PDF extraction only) ---
+Pillow>=10.0.0
+pdfplumber>=0.10.3
+
+# --- Frontend ---
+streamlit>=1.35.0
+requests>=2.31.0
+
+# --- Utilities ---
+python-dotenv>=1.0.1
+pydantic[email]>=2.7.0
+numpy>=1.26.0
