@@ -74,6 +74,25 @@ Report Upload → Text Extraction (OCR) → AI Summarization → Risk Detection
 
 ## 🚀 Quick Start
 
+### Option A — One-command startup (recommended)
+
+```bash
+# 1. Install minimal dependencies (no large ML downloads)
+pip install -r requirements-minimal.txt
+
+# 2. Start everything with the convenience script
+./run.sh          # starts backend (port 8000) + frontend (port 8501)
+```
+
+That's it. Open http://localhost:8501 in your browser.
+
+> **Want AI summarization & translation?**
+> Use `pip install -r requirements.txt` instead — this downloads ~2 GB of ML models on first use.
+
+---
+
+### Option B — Manual startup
+
 ### 1. Prerequisites
 
 - Python 3.10+
@@ -91,36 +110,51 @@ python -m venv venv
 source venv/bin/activate        # Linux/macOS
 # venv\Scripts\activate         # Windows
 
-# Install dependencies
+# Minimal install (no ML models — fastest start)
+pip install -r requirements-minimal.txt
+
+# OR full install (includes torch/transformers — downloads ~2 GB on first run)
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment
+### 3. Configure Environment (optional)
 
 ```bash
 cp .env.example .env
-# Edit .env with your credentials
+# Edit .env to add Twilio credentials, change ports, etc.
 ```
 
 ### 4. Start the Backend
 
 ```bash
-uvicorn backend.main:app --reload --port 8000
+# Terminal 1
+python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-The interactive API documentation is available at:
+Interactive API docs:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
 ### 5. Start the Frontend
 
-Open a **new terminal**:
-
 ```bash
+# Terminal 2
 streamlit run frontend/app.py
 ```
 
-The Streamlit app opens at http://localhost:8501.
+Streamlit UI: http://localhost:8501
+
+---
+
+### Ports & URLs at a glance
+
+| Service | Default URL | Notes |
+|---------|-------------|-------|
+| FastAPI backend | http://localhost:8000 | JSON API |
+| Swagger docs | http://localhost:8000/docs | Interactive API explorer |
+| Streamlit UI | http://localhost:8501 | Patient-facing web app |
+
+Override ports via env vars: `BACKEND_PORT=9000 FRONTEND_PORT=9501 ./run.sh`
 
 ---
 
