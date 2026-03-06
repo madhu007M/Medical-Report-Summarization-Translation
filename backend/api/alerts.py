@@ -60,7 +60,7 @@ def run_detection(db: Session = Depends(get_db)):
     return {"alerts_generated_or_updated": alerts, "count": len(alerts)}
 
 
-@router.put("/alerts/{alert_id}/deactivate", summary="Deactivate an outbreak alert")
+@router.put("/{alert_id}/deactivate", summary="Deactivate an outbreak alert")
 def deactivate_alert(alert_id: int, db: Session = Depends(get_db)):
     alert = db.query(OutbreakAlert).filter(OutbreakAlert.id == alert_id).first()
     if not alert:
