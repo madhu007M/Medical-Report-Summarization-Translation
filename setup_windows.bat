@@ -50,8 +50,8 @@ echo ========================================
 echo.
 echo Next steps:
 echo 1. Edit .env file with your Twilio credentials (if available)
-echo 2. Terminal 1: uvicorn backend.app.main:app --reload --port 8000
-echo 3. Terminal 2: streamlit run frontend/streamlit_app.py
+echo 2. Terminal 1: python -m uvicorn backend.app.main:app --reload --port 8000
+echo 3. Terminal 2: python -m streamlit run frontend/streamlit_app.py
 echo.
 echo Run tests: pytest tests/ -v
 echo.

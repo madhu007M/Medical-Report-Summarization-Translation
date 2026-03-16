@@ -1,0 +1,23 @@
+# Minimal requirements for running the platform without heavy AI models.
+# Suitable for quick testing, CI, and environments with limited disk space.
+# The backend will run with fallback (no-op) summarization and translation.
+# For full AI functionality, use: pip install -r requirements.txt
+
+fastapi
+uvicorn[standard]
+streamlit
+python-multipart
+pillow
+PyPDF2
+pytesseract
+gtts
+twilio
+sqlalchemy
+requests
+pytest
+pytest-cov
+pytest-asyncio
+httpx
+reportlab
+pandas
+plotly

@@ -89,7 +89,7 @@ pytest tests/ --cov=backend --cov-report=html
 
 ### 1. Start Backend (FastAPI)
 ```bash
-uvicorn backend.app.main:app --reload --port 8000
+python -m uvicorn backend.app.main:app --reload --port 8000
 ```
 
 Backend will be available at: `http://localhost:8000`
@@ -98,7 +98,7 @@ Backend will be available at: `http://localhost:8000`
 
 ### 2. Start Frontend (in separate terminal)
 ```bash
-streamlit run frontend/streamlit_app.py
+python -m streamlit run frontend/streamlit_app.py
 ```
 
 Frontend will open at: `http://localhost:8501`
@@ -137,7 +137,7 @@ st.audio(full_url, format="audio/mp3")
 ### Test Report Processing E2E
 ```bash
 # Upload a sample PDF via Streamlit
-streamlit run frontend/streamlit_app.py
+python -m streamlit run frontend/streamlit_app.py
 # Use the UI to upload a report
 ```
 
@@ -222,7 +222,7 @@ ERROR: Address already in use
 ```
 **Solution**: 
 ```bash
-uvicorn backend.app.main:app --port 8001  # Use different port
+python -m uvicorn backend.app.main:app --port 8001  # Use different port
 ```
 
 ## Additional Resources

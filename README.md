@@ -80,16 +80,22 @@ cp .env.example .env
 
 ## Running
 
+### One Command (Linux/macOS)
+```bash
+chmod +x run.sh
+./run.sh
+```
+
 ### Backend (FastAPI + Uvicorn)
 ```bash
-uvicorn backend.app.main:app --reload --port 8000
+python -m uvicorn backend.app.main:app --reload --port 8000
 ```
 - Interactive API docs: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
 ### Frontend (Streamlit)
 ```bash
-streamlit run frontend/streamlit_app.py
+python -m streamlit run frontend/streamlit_app.py
 ```
 - Opens at: `http://localhost:8501`
 

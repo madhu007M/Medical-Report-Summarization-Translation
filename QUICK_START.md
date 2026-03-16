@@ -21,7 +21,7 @@ start_backend.bat
 
 # Or manually:
 .venv\Scripts\activate
-uvicorn backend.app.main:app --reload --port 8000
+python -m uvicorn backend.app.main:app --reload --port 8000
 ```
 
 **Backend will be running at:**
@@ -37,7 +37,7 @@ start_frontend.bat
 
 # Or manually:
 .venv\Scripts\activate
-streamlit run frontend/streamlit_app.py
+python -m streamlit run frontend/streamlit_app.py
 ```
 
 **Frontend will open at:**
@@ -155,7 +155,7 @@ netstat -ano | findstr :8000
 taskkill /PID <pid_number> /F
 
 # Or use a different port
-uvicorn backend.app.main:app --reload --port 8001
+python -m uvicorn backend.app.main:app --reload --port 8001
 ```
 
 ### Models Taking Long to Download
