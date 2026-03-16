@@ -19,4 +19,4 @@ echo Press Ctrl+C to stop the server
 echo ========================================
 echo.
 
-streamlit run frontend/streamlit_app.py
+python -m streamlit run frontend/streamlit_app.py

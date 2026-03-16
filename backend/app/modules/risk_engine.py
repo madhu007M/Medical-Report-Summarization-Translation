@@ -17,8 +17,8 @@ def _detect_temp(text: str) -> float:
     """Detect temperature value from text.
 
     Handles both 2-digit (98.6F) and 3-digit (103.5F, 100.2C) formats.
-    Original regex r"(\d{2}\.d)" failed on 3-digit values like 103.5
-    because \d{2} matched only the last 2 digits of the integer part,
+    Original regex r"(\\d{2}\\.d)" failed on 3-digit values like 103.5
+    because \\d{2} matched only the last 2 digits of the integer part,
     e.g. matching "03" in "103.5" giving 3.5 instead of 103.5.
     """
     match = re.search(r"(\d{2,3}\.\d+)\s*[CF]", text, flags=re.IGNORECASE)

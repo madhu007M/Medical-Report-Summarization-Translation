@@ -34,7 +34,6 @@ class ChatbotRequest(BaseModel):
     symptoms: Optional[List[str]] = None
     risk_level: Optional[str] = "Low"
     fallback: Optional[str] = "Let me know your main symptoms."
-    language: Optional[str] = "en"
 
 
 class DoctorAlertCreate(BaseModel):
@@ -215,17 +214,11 @@ def process_report(
 @app.post("/chatbot")
 def chatbot(req: ChatbotRequest):
     prompts = chatbot_module.next_questions(req.symptoms or [])
-
-    # Use first detected condition as context for response generation
-    conditions = req.symptoms or []
-    first_condition = conditions[0] if conditions else None
-
     response = chatbot_module.generate_response(
         req.message,
         {
             "fallback": req.fallback or "",
             "risk_level": req.risk_level or "Low",
-            "current_condition": first_condition,
         },
     )
     insights = chatbot_module.build_chat_insights(
@@ -233,26 +226,7 @@ def chatbot(req: ChatbotRequest):
         symptoms=req.symptoms or [],
         risk_level=req.risk_level or "Low",
     )
-
-    # Translate chatbot response into the requested language
-    resolved_lang = translation_module.normalize_target_language(
-        req.language or "en", settings.translation_models
-    )
-    translated_response = response
-    if resolved_lang != "en":
-        translated_response = translation_module.translate_text(
-            response, resolved_lang, settings.translation_models
-        )
-
-    audio_url = f"/audio/explanation?text={urlquote(translated_response)}&language={resolved_lang}"
-
-    return {
-        "prompts": prompts,
-        "response": translated_response,
-        "insights": insights,
-        "audio_url": audio_url,
-        "language": resolved_lang,
-    }
+    return {"prompts": prompts, "response": response, "insights": insights}
 
 
 @app.get("/outbreaks")

@@ -18,4 +18,4 @@ echo Press Ctrl+C to stop the server
 echo ========================================
 echo.
 
-uvicorn backend.app.main:app --reload --port 8000
+python -m uvicorn backend.app.main:app --reload --port 8000
