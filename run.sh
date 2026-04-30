@@ -12,6 +12,16 @@ if [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
 fi
 
+# Detect python binary (prefer the venv python, fall back to python3/python)
+if command -v python &>/dev/null; then
+    PYTHON=python
+elif command -v python3 &>/dev/null; then
+    PYTHON=python3
+else
+    echo "ERROR: Python not found. Install Python 3.10+ first."
+    exit 1
+fi
+
 echo "========================================"
 echo "  AI Medical Report Interpreter"
 echo "  Starting Platform"
@@ -27,7 +37,7 @@ echo ""
 
 # Start backend in background
 echo "[1/2] Starting backend server..."
-python -m uvicorn backend.app.main:app --reload --port 8000 &
+$PYTHON -m uvicorn backend.app.main:app --reload --port 8000 &
 BACKEND_PID=$!
 
 # Wait for backend to initialize
@@ -35,7 +45,7 @@ sleep 3
 
 # Start frontend in foreground
 echo "[2/2] Starting frontend..."
-python -m streamlit run frontend/streamlit_app.py &
+$PYTHON -m streamlit run frontend/streamlit_app.py &
 FRONTEND_PID=$!
 
 # Wait for both processes; shut down both on Ctrl+C
