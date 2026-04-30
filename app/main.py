@@ -1,10 +1,12 @@
 import logging
+import os
 from typing import Dict, List, Optional
 from urllib.parse import quote as urlquote
 
 from fastapi import Depends, FastAPI, File, Form, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -26,6 +28,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve frontend static files (HTML/CSS/JS) under /static
+_static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=_static_dir), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def serve_frontend():
+    """Serve the single-page HTML frontend."""
+    return FileResponse(os.path.join(_static_dir, "index.html"))
 
 
 class ChatbotRequest(BaseModel):

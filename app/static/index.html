@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedReport AI – Medical Report Interpreter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Variables (light default) ── */
+    :root {
+      --bg: #f0f4f8;
+      --sidebar-bg: #ffffff;
+      --card-bg: #ffffff;
+      --card-bg2: #f8faff;
+      --border: #dde3ee;
+      --text: #0d1b2e;
+      --text-muted: #5a6a82;
+      --input-bg: #ffffff;
+      --shadow: rgba(15,30,60,0.08);
+      --hero-start: #1a56db;
+      --hero-end: #1e40af;
+      --accent: #2563eb;
+    }
+    [data-theme="dark"] {
+      --bg: #0a0f1e;
+      --sidebar-bg: #0d1526;
+      --card-bg: #111c30;
+      --card-bg2: #162035;
+      --border: #1e3150;
+      --text: #f0f4ff;
+      --text-muted: #7c90b0;
+      --input-bg: #0d1a2e;
+      --shadow: rgba(0,0,0,0.5);
+      --hero-start: #1a3a6e;
+      --hero-end: #0e2550;
+      --accent: #3b82f6;
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+    /* ── Sidebar ── */
+    .sidebar-logo {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-logo-icon { font-size: 1.8em; }
+    .sidebar-logo-text { font-size: 1em; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .sidebar-logo-text small { font-weight: 400; color: var(--text-muted); font-size: 0.75em; display: block; }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+    .nav-section { padding: 10px 16px 4px; font-size: 0.68em; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 18px;
+      cursor: pointer;
+      font-size: 0.88em;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-radius: 8px;
+      margin: 1px 8px;
+      transition: all 0.18s;
+    }
+    .nav-item:hover { background: var(--card-bg2); color: var(--text); }
+    .nav-item.active { background: rgba(37,99,235,0.1); color: var(--accent); font-weight: 600; }
+    .nav-item .nav-icon { width: 20px; text-align: center; font-size: 1em; }
+
+    .sidebar-footer {
+      padding: 14px 18px;
+      border-top: 1px solid var(--border);
+    }
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82em;
+      color: var(--text-muted);
+    }
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      cursor: pointer;
+    }
+    .toggle-switch input { display: none; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 11px;
+      transition: background 0.3s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px; left: 3px;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    input:checked + .toggle-track { background: var(--accent); }
+    input:checked + .toggle-track::after { transform: translateX(18px); }
+
+    /* ── Status dot ── */
+    .status-bar {
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78em;
+      color: var(--text-muted);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot-green { background: #22c55e; animation: glow 2s ease-in-out infinite; }
+    .dot-red { background: #ef4444; }
+    @keyframes glow {
+      0%,100% { box-shadow: 0 0 0 2px rgba(34,197,94,0.2); }
+      50% { box-shadow: 0 0 0 5px rgba(34,197,94,0.08); }
+    }
+
+    /* ── Pages ── */
+    .page { display: none; animation: fadeInUp 0.35s ease both; }
+    .page.active { display: block; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--hero-start) 0%, #1e3a8a 50%, var(--hero-end) 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 8s ease infinite;
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(30,64,175,0.25);
+      color: #fff;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .hero-title { font-size: 1.75em; font-weight: 800; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .hero-sub { font-size: 0.95em; opacity: 0.8; }
+    .hero::before {
+      content: '🏥';
+      position: absolute;
+      top: 20px; right: 30px;
+      font-size: 5em;
+      opacity: 0.08;
+      animation: heroBob 6s ease-in-out infinite;
+    }
+    @keyframes heroBob {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-8px) scale(1.05); }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card:hover { box-shadow: 0 8px 28px var(--shadow); transform: translateY(-1px); }
+    .card-title { font-size: 1em; font-weight: 700; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+
+    /* ── Form Elements ── */
+    label { font-size: 0.85em; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px; margin-top: 14px; }
+    label:first-child { margin-top: 0; }
+    input[type=text], input[type=tel], select, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.88em;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input[type=text]:focus, input[type=tel]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+
+    /* ── Drop Zone ── */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 36px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--card-bg2);
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(37,99,235,0.04);
+    }
+    .dropzone-icon { font-size: 2.5em; margin-bottom: 10px; }
+    .dropzone-text { font-size: 0.9em; color: var(--text-muted); }
+    .dropzone-text strong { color: var(--accent); }
+    .file-name-display { margin-top: 10px; font-size: 0.83em; color: #22c55e; font-weight: 600; }
+    #fileInput { display: none; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 22px;
+      border-radius: 9px;
+      font-size: 0.9em;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+    .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 4px 14px rgba(37,99,235,0.4); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: var(--card-bg2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 6px 14px; font-size: 0.82em; }
+    .btn-lg { padding: 13px 28px; font-size: 0.97em; }
+    .btn-full { width: 100%; }
+
+    /* ── Risk Badges ── */
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.82em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .risk-high-badge { background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; }
+    .risk-moderate-badge { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+    .risk-low-badge { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+    [data-theme="dark"] .risk-high-badge { background: rgba(239,68,68,0.12); }
+    [data-theme="dark"] .risk-moderate-badge { background: rgba(217,119,6,0.12); }
+    [data-theme="dark"] .risk-low-badge { background: rgba(22,163,74,0.12); }
+
+    /* ── Risk Banner ── */
+    .risk-banner {
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .risk-banner-high { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1px solid #fca5a5; border-left: 5px solid #ef4444; }
+    .risk-banner-moderate { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fcd34d; border-left: 5px solid #f59e0b; }
+    .risk-banner-low { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-left: 5px solid #22c55e; }
+    [data-theme="dark"] .risk-banner-high { background: rgba(239,68,68,0.08); }
+    [data-theme="dark"] .risk-banner-moderate { background: rgba(245,158,11,0.08); }
+    [data-theme="dark"] .risk-banner-low { background: rgba(34,197,94,0.08); }
+    .risk-banner-icon { font-size: 2.4em; }
+    .risk-banner-level { font-size: 1.3em; font-weight: 800; }
+    .risk-banner-sub { font-size: 0.85em; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Summary box ── */
+    .summary-box {
+      background: var(--card-bg2);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 0.92em;
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+
+    /* ── Audio player ── */
+    .audio-wrap { margin: 12px 0; }
+    audio { width: 100%; border-radius: 8px; }
+
+    /* ── Follow-up questions ── */
+    .fup-list { list-style: none; padding: 0; }
+    .fup-list li {
+      padding: 9px 12px 9px 32px;
+      position: relative;
+      font-size: 0.88em;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .fup-list li:last-child { border-bottom: none; }
+    .fup-list li::before {
+      content: '?';
+      position: absolute;
+      left: 10px;
+      width: 16px; height: 16px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.72em;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: 10px;
+    }
+
+    /* ── Two-step progress ── */
+    .steps {
+      display: flex;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9em;
+      transition: all 0.3s;
+    }
+    .step-num.done { background: #22c55e; color: #fff; }
+    .step-num.active { background: var(--accent); color: #fff; animation: stepPulse 1.8s ease infinite; }
+    .step-num.pending { background: var(--card-bg2); color: var(--text-muted); border: 2px solid var(--border); }
+    .step-lbl { font-size: 0.72em; font-weight: 600; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .step-lbl.active { color: var(--accent); }
+    .step-lbl.done { color: #22c55e; }
+    .step-connector { flex: 1; height: 2px; background: var(--border); margin: 0 4px; transition: background 0.4s; }
+    .step-connector.done { background: #22c55e; }
+    @keyframes stepPulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
+      50% { box-shadow: 0 0 0 7px rgba(37,99,235,0.08); }
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .spinner-dark {
+      border-color: rgba(37,99,235,0.2);
+      border-top-color: var(--accent);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Chat ── */
+    .chat-messages {
+      min-height: 200px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg {
+      max-width: 82%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.88em;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease both;
+    }
+    .msg-user {
+      background: var(--accent);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 3px;
+    }
+    .msg-bot {
+      background: var(--card-bg2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      align-self: flex-start;
+      border-bottom-left-radius: 3px;
+    }
+    .msg-bot.typing {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 12px 16px;
+    }
+    .tdot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: typingDot 1.3s ease-in-out infinite;
+    }
+    .tdot:nth-child(2) { animation-delay: 0.18s; }
+    .tdot:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes typingDot {
+      0%,60%,100% { transform: translateY(0); opacity: 0.35; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+    .chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
+    .chat-input-row input { flex: 1; }
+    .chat-disclaimer {
+      font-size: 0.76em;
+      color: var(--text-muted);
+      background: var(--card-bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid #f59e0b;
+      border-radius: 8px;
+      padding: 7px 12px;
+      margin-bottom: 12px;
+    }
+
+    /* ── Metric grid ── */
+    .metric-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .metric-card {
+      flex: 1;
+      min-width: 110px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: 0 2px 6px var(--shadow);
+      animation: scaleIn 0.4s ease both;
+    }
+    .metric-val { font-size: 1.8em; font-weight: 800; line-height: 1; }
+    .metric-lbl { font-size: 0.72em; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+    /* ── Alerts table ── */
+    .alerts-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+    .alerts-table th { text-align: left; padding: 8px 10px; color: var(--text-muted); font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--border); }
+    .alerts-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .alerts-table tr:last-child td { border-bottom: none; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88em;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      max-width: 320px;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: #ef4444; }
+    #toast.success { background: #22c55e; }
+
+    /* ── Section divider ── */
+    .section-header {
+      font-size: 1.05em;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    /* ── Form grid ── */
+    .form-row { display: flex; gap: 14px; }
+    .form-row > * { flex: 1; }
+
+    /* ── Extracted text area ── */
+    .extracted-box {
+      background: var(--card-bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.85em;
+      color: var(--text);
+      white-space: pre-wrap;
+      max-height: 240px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { padding: 16px; }
+      .form-row { flex-direction: column; }
+    }
+
+    /* ── Misc helpers ── */
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .text-muted { color: var(--text-muted); font-size: 0.84em; }
+    .text-success { color: #22c55e; }
+    .text-danger { color: #ef4444; }
+    .hidden { display: none !important; }
+    .tag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 600;
+      background: rgba(37,99,235,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(37,99,235,0.2);
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-icon">🏥</span>
+      <div class="sidebar-logo-text">
+        MedReport AI
+        <small>Medical Interpreter</small>
+      </div>
+    </div>
+
+    <div id="apiStatusBar" class="status-bar">
+      <span class="dot dot-red" id="statusDot"></span>
+      <span id="statusText">Checking…</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="showPage('upload')" id="nav-upload">
+        <span class="nav-icon">📤</span> Upload Report
+      </div>
+      <div class="nav-item" onclick="showPage('results')" id="nav-results">
+        <span class="nav-icon">📋</span> Results
+      </div>
+
+      <div class="nav-section">Tools</div>
+      <div class="nav-item" onclick="showPage('chatbot')" id="nav-chatbot">
+        <span class="nav-icon">💬</span> AI Chatbot
+      </div>
+      <div class="nav-item" onclick="showPage('translate')" id="nav-translate">
+        <span class="nav-icon">🌐</span> Translate
+      </div>
+
+      <div class="nav-section">Clinical</div>
+      <div class="nav-item" onclick="showPage('outbreaks')" id="nav-outbreaks">
+        <span class="nav-icon">🦠</span> Outbreaks
+      </div>
+      <div class="nav-item" onclick="showPage('doctor')" id="nav-doctor">
+        <span class="nav-icon">👨‍⚕️</span> Doctor Alerts
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span>🌙 Dark Mode</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="themeToggle" onchange="toggleTheme()" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ═══ PAGE: UPLOAD ═══ -->
+    <div id="page-upload" class="page active">
+      <div class="hero">
+        <div class="hero-title">AI Medical Report Interpreter</div>
+        <div class="hero-sub">Upload your report · Get plain-language summaries · Multi-language support</div>
+      </div>
+
+      <!-- Two-step progress -->
+      <div id="stepsBar" class="card" style="padding:18px 24px;">
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-num active" id="step1num">1</div>
+            <div class="step-lbl active" id="step1lbl">Upload & Extract</div>
+          </div>
+          <div class="step-connector" id="connector12"></div>
+          <div class="step-item">
+            <div class="step-num pending" id="step2num">2</div>
+            <div class="step-lbl" id="step2lbl">Analyse</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1: Upload -->
+      <div id="step1Section" class="card">
+        <div class="card-title">📂 Step 1 — Upload Medical Report</div>
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <div class="dropzone-icon">📄</div>
+          <div class="dropzone-text">Drag & drop or <strong>click to browse</strong></div>
+          <div class="dropzone-text" style="margin-top:4px;font-size:0.8em;">Supports PDF, PNG, JPG, JPEG, TXT</div>
+          <div id="fileNameDisplay" class="file-name-display hidden"></div>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.txt" onchange="onFileSelected(event)" />
+        <div class="mt-12">
+          <button class="btn btn-primary btn-lg btn-full" id="extractBtn" onclick="extractText()" disabled>
+            <span>🔍 Extract Text from Report</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Extracted text + options -->
+      <div id="step2Section" class="hidden">
+        <div class="card">
+          <div class="card-title">📝 Extracted Text — Review &amp; Confirm</div>
+          <div class="text-muted mb-8">Review the extracted text below. Edit in the textarea if needed before analysis.</div>
+          <textarea id="extractedTextarea" rows="7" style="font-family:monospace;font-size:0.82em;"></textarea>
+          <div class="text-muted mt-8" id="charCount"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚙️ Step 2 — Analysis Options</div>
+          <div class="form-row">
+            <div>
+              <label>🌐 Target Language</label>
+              <select id="langSelect">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="kn">Kannada</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="mr">Marathi</option>
+                <option value="bn">Bengali</option>
+              </select>
+            </div>
+            <div>
+              <label>📍 Location (optional)</label>
+              <input type="text" id="locationInput" placeholder="City / Region" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>📱 Phone for SMS Alert (optional)</label>
+              <input type="tel" id="phoneInput" placeholder="+91XXXXXXXXXX" />
+            </div>
+            <div>
+              <label>🩺 Symptoms (comma-separated, optional)</label>
+              <input type="text" id="symptomsInput" placeholder="fever, cough, fatigue" />
+            </div>
+          </div>
+          <div class="mt-16">
+            <button class="btn btn-primary btn-lg btn-full" id="processBtn" onclick="processReport()">
+              <span>🚀 Analyse Report</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: RESULTS ═══ -->
+    <div id="page-results" class="page">
+      <div id="noResults" class="card" style="text-align:center;padding:48px;">
+        <div style="font-size:3em;margin-bottom:12px;">📋</div>
+        <div style="font-weight:600;font-size:1.1em;margin-bottom:6px;">No Results Yet</div>
+        <div class="text-muted">Upload and analyse a report to see results here.</div>
+        <button class="btn btn-primary mt-12" onclick="showPage('upload')">Upload Report</button>
+      </div>
+
+      <div id="resultsContent" class="hidden">
+        <!-- Risk Banner -->
+        <div id="riskBanner"></div>
+
+        <!-- Metrics -->
+        <div class="metric-grid" id="metricsGrid"></div>
+
+        <!-- Summary -->
+        <div class="card">
+          <div class="card-title">📄 AI-Generated Summary</div>
+          <div id="summaryBox" class="summary-box"></div>
+          <div id="audioSection" class="audio-wrap hidden">
+            <div class="text-muted mb-8" style="font-size:0.8em;">🔊 Listen to the summary</div>
+            <audio id="audioPlayer" controls></audio>
+          </div>
+          <div class="flex gap-8 mt-12" style="flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="downloadPDF()">📥 Download PDF</button>
+            <button class="btn btn-secondary btn-sm" onclick="showPage('chatbot')">💬 Ask AI Chatbot</button>
+          </div>
+        </div>
+
+        <!-- Risk Details -->
+        <div class="card" id="riskDetailsCard">
+          <div class="card-title">🔬 Risk Analysis Details</div>
+          <div id="riskDetails"></div>
+        </div>
+
+        <!-- Follow-up Questions -->
+        <div class="card" id="followUpCard" class="hidden">
+          <div class="card-title">❓ Suggested Follow-up Questions</div>
+          <ul id="followUpList" class="fup-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: CHATBOT ═══ -->
+    <div id="page-chatbot" class="page">
+      <div class="section-header">💬 AI Medical Chatbot</div>
+      <div class="chat-disclaimer">⚠️ This chatbot provides general health information only. It is not a substitute for professional medical advice.</div>
+
+      <div class="card">
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg msg-bot">👋 Hello! I'm your AI medical assistant. I can help answer questions about your medical report, symptoms, or general health topics. How can I help you today?</div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Type your health question…" onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="btn btn-primary" onclick="sendChat()">Send ↑</button>
+        </div>
+        <div class="flex gap-8 mt-12" style="flex-wrap:wrap;">
+          <span class="text-muted" style="font-size:0.78em;">Quick:</span>
+          <button class="btn btn-secondary btn-sm" onclick="quickChat('What does my risk level mean?')">Risk level?</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickChat('What are common symptoms of diabetes?')">Diabetes symptoms</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickChat('When should I see a doctor urgently?')">Urgent care signs</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: TRANSLATE ═══ -->
+    <div id="page-translate" class="page">
+      <div class="section-header">🌐 Text Translation</div>
+      <div class="card">
+        <div class="card-title">Translate Any Medical Text</div>
+        <label>Source Text</label>
+        <textarea id="translateInput" rows="5" placeholder="Enter English text to translate…"></textarea>
+        <label>Target Language</label>
+        <select id="translateLang">
+          <option value="hi">Hindi</option>
+          <option value="kn">Kannada</option>
+          <option value="ta">Tamil</option>
+          <option value="te">Telugu</option>
+          <option value="mr">Marathi</option>
+          <option value="bn">Bengali</option>
+          <option value="en">English</option>
+        </select>
+        <div class="mt-12">
+          <button class="btn btn-primary" onclick="doTranslate()">🌐 Translate</button>
+        </div>
+      </div>
+      <div id="translateResult" class="hidden card">
+        <div class="card-title">Translation Result</div>
+        <div id="translateOutput" class="summary-box"></div>
+        <div class="audio-wrap mt-12" id="translateAudioSection" style="display:none;">
+          <audio id="translateAudio" controls></audio>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: OUTBREAKS ═══ -->
+    <div id="page-outbreaks" class="page">
+      <div class="section-header">🦠 Outbreak Detection</div>
+      <div class="card">
+        <div class="card-title">Search by Region</div>
+        <div class="flex gap-8">
+          <input type="text" id="outbreakRegion" placeholder="e.g. Mumbai, Delhi…" style="flex:1;" />
+          <button class="btn btn-primary" onclick="loadOutbreaks()">Search</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('outbreakRegion').value='';loadOutbreaks()">All</button>
+        </div>
+      </div>
+      <div id="outbreaksContent" class="card">
+        <div style="text-align:center;padding:24px;">
+          <div class="spinner spinner-dark" style="margin:0 auto 8px;"></div>
+          <div class="text-muted">Loading outbreak data…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: DOCTOR ALERTS ═══ -->
+    <div id="page-doctor" class="page">
+      <div class="section-header">👨‍⚕️ Doctor Dashboard &amp; Alerts</div>
+
+      <div class="card">
+        <div class="card-title">Create New Alert</div>
+        <div class="form-row">
+          <div>
+            <label>Doctor Name</label>
+            <input type="text" id="alertDoctor" placeholder="Dr. Smith" />
+          </div>
+          <div>
+            <label>Region</label>
+            <input type="text" id="alertRegion" placeholder="e.g. Mumbai" />
+          </div>
+        </div>
+        <label>Alert Title</label>
+        <input type="text" id="alertTitle" placeholder="Alert title" />
+        <label>Message</label>
+        <textarea id="alertMessage" rows="3" placeholder="Describe the alert…"></textarea>
+        <div class="mt-12">
+          <button class="btn btn-primary" onclick="createAlert()">📢 Create Alert</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;">
+          <span>Active Alerts</span>
+          <div class="flex gap-8 items-center">
+            <input type="text" id="filterRegion" placeholder="Filter by region…" style="width:160px;" />
+            <button class="btn btn-secondary btn-sm" onclick="loadAlerts()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div id="alertsContent">
+          <div class="text-muted">Loading alerts…</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // GLOBALS
+  // ─────────────────────────────────────────────
+  const API = '';   // same origin – FastAPI serves both
+  let selectedFile = null;
+  let extractedText = '';
+  let lastReportId = null;
+  let lastRiskLevel = 'Low';
+  let lastSymptoms = [];
+  let chatSessionId = 'sess_' + Math.random().toString(36).slice(2);
+
+  // ─────────────────────────────────────────────
+  // INIT
+  // ─────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    checkApiHealth();
+    loadLanguages();
+    loadOutbreaks();
+    loadAlerts();
+    setInterval(checkApiHealth, 30000);
+  });
+
+  async function checkApiHealth() {
+    try {
+      const r = await fetch(API + '/health');
+      const data = await r.json();
+      const ok = data.status === 'ok';
+      document.getElementById('statusDot').className = 'dot ' + (ok ? 'dot-green' : 'dot-red');
+      document.getElementById('statusText').textContent = ok ? 'Backend Online' : 'Backend Error';
+    } catch {
+      document.getElementById('statusDot').className = 'dot dot-red';
+      document.getElementById('statusText').textContent = 'Backend Offline';
+    }
+  }
+
+  async function loadLanguages() {
+    try {
+      const r = await fetch(API + '/languages');
+      const data = await r.json();
+      const selects = [document.getElementById('langSelect'), document.getElementById('translateLang')];
+      selects.forEach(sel => {
+        if (!sel) return;
+        sel.innerHTML = '';
+        (data.languages || []).forEach(lang => {
+          const opt = document.createElement('option');
+          opt.value = lang.code;
+          opt.textContent = lang.name;
+          sel.appendChild(opt);
+        });
+        if (!data.languages || data.languages.length === 0) {
+          // fallback
+          sel.innerHTML = `<option value="en">English</option><option value="hi">Hindi</option><option value="kn">Kannada</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="mr">Marathi</option><option value="bn">Bengali</option>`;
+        }
+      });
+    } catch {
+      // keep defaults
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // NAVIGATION
+  // ─────────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'outbreaks') loadOutbreaks();
+    if (name === 'doctor') loadAlerts();
+  }
+
+  // ─────────────────────────────────────────────
+  // THEME
+  // ─────────────────────────────────────────────
+  function toggleTheme() {
+    const dark = document.getElementById('themeToggle').checked;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }
+  // Restore saved theme
+  if (localStorage.getItem('theme') === 'dark') {
+    document.getElementById('themeToggle').checked = true;
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  // ─────────────────────────────────────────────
+  // TOAST
+  // ─────────────────────────────────────────────
+  function toast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.className = '', 3500);
+  }
+
+  // ─────────────────────────────────────────────
+  // FILE UPLOAD
+  // ─────────────────────────────────────────────
+  function onDragOver(e) { e.preventDefault(); document.getElementById('dropzone').classList.add('dragover'); }
+  function onDragLeave() { document.getElementById('dropzone').classList.remove('dragover'); }
+  function onDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropzone').classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) setFile(f);
+  }
+  function onFileSelected(e) { if (e.target.files[0]) setFile(e.target.files[0]); }
+  function setFile(f) {
+    selectedFile = f;
+    const disp = document.getElementById('fileNameDisplay');
+    disp.textContent = '✅ ' + f.name + ' (' + (f.size / 1024).toFixed(1) + ' KB)';
+    disp.classList.remove('hidden');
+    document.getElementById('extractBtn').disabled = false;
+  }
+
+  // ─────────────────────────────────────────────
+  // STEP 1: EXTRACT TEXT
+  // ─────────────────────────────────────────────
+  async function extractText() {
+    if (!selectedFile) return;
+    const btn = document.getElementById('extractBtn');
+    btn.innerHTML = '<span class="spinner"></span> Extracting…';
+    btn.disabled = true;
+
+    try {
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      const r = await fetch(API + '/extract-text', { method: 'POST', body: fd });
+      if (!r.ok) throw new Error('Extraction failed');
+      const data = await r.json();
+
+      extractedText = data.extracted_text;
+      document.getElementById('extractedTextarea').value = extractedText;
+      document.getElementById('charCount').textContent = `${data.char_count} characters extracted`;
+
+      // Advance UI to step 2
+      document.getElementById('step1Section').classList.add('hidden');
+      document.getElementById('step2Section').classList.remove('hidden');
+      setStep(1, 'done'); setStep(2, 'active');
+      toast('Text extracted successfully!', 'success');
+    } catch (err) {
+      toast('❌ ' + err.message, 'error');
+    } finally {
+      btn.innerHTML = '<span>🔍 Extract Text from Report</span>';
+      btn.disabled = false;
+    }
+  }
+
+  function setStep(n, state) {
+    const num = document.getElementById('step' + n + 'num');
+    const lbl = document.getElementById('step' + n + 'lbl');
+    num.className = 'step-num ' + state;
+    lbl.className = 'step-lbl ' + state;
+    if (n === 1 && state === 'done') document.getElementById('connector12').classList.add('done');
+  }
+
+  // ─────────────────────────────────────────────
+  // STEP 2: PROCESS REPORT
+  // ─────────────────────────────────────────────
+  async function processReport() {
+    const textToSend = document.getElementById('extractedTextarea').value.trim();
+    if (!textToSend) { toast('No text to analyse', 'error'); return; }
+
+    const btn = document.getElementById('processBtn');
+    btn.innerHTML = '<span class="spinner"></span> Analysing…';
+    btn.disabled = true;
+
+    try {
+      const fd = new FormData();
+      // Re-send the file (or a text blob) for the backend
+      if (selectedFile) {
+        fd.append('file', selectedFile);
+      } else {
+        fd.append('file', new Blob([textToSend], { type: 'text/plain' }), 'report.txt');
+      }
+      fd.append('language', document.getElementById('langSelect').value);
+      fd.append('location', document.getElementById('locationInput').value);
+      fd.append('phone', document.getElementById('phoneInput').value);
+      fd.append('symptoms', document.getElementById('symptomsInput').value);
+
+      const r = await fetch(API + '/process-report', { method: 'POST', body: fd });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ detail: 'Server error' }));
+        throw new Error(err.detail || 'Processing failed');
+      }
+      const data = await r.json();
+
+      lastReportId = data.report_id;
+      lastRiskLevel = data.risk?.risk_level || 'Low';
+      lastSymptoms = document.getElementById('symptomsInput').value.split(',').map(s => s.trim()).filter(Boolean);
+
+      renderResults(data);
+      showPage('results');
+      toast('✅ Report analysed successfully!', 'success');
+    } catch (err) {
+      toast('❌ ' + err.message, 'error');
+    } finally {
+      btn.innerHTML = '<span>🚀 Analyse Report</span>';
+      btn.disabled = false;
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // RENDER RESULTS
+  // ─────────────────────────────────────────────
+  function renderResults(data) {
+    document.getElementById('noResults').classList.add('hidden');
+    document.getElementById('resultsContent').classList.remove('hidden');
+
+    const risk = data.risk || {};
+    const level = risk.risk_level || 'Low';
+    const score = risk.risk_score ?? '';
+    const recs = risk.recommendation || '';
+
+    // Risk banner
+    const levelKey = level.toLowerCase();
+    const icon = levelKey === 'high' ? '🚨' : levelKey === 'moderate' ? '⚠️' : '✅';
+    const bannerClass = `risk-banner risk-banner-${levelKey === 'high' ? 'high' : levelKey === 'moderate' ? 'moderate' : 'low'}`;
+    document.getElementById('riskBanner').innerHTML = `
+      <div class="${bannerClass}">
+        <div class="risk-banner-icon">${icon}</div>
+        <div>
+          <div class="risk-banner-level">${level} Risk</div>
+          ${score !== '' ? `<div class="risk-banner-sub">Score: ${score}/100</div>` : ''}
+          ${recs ? `<div class="risk-banner-sub" style="margin-top:6px;">${recs}</div>` : ''}
+        </div>
+      </div>`;
+
+    // Metrics
+    const flags = risk.flags || [];
+    document.getElementById('metricsGrid').innerHTML = `
+      <div class="metric-card"><div class="metric-val" style="color:${levelKey==='high'?'#ef4444':levelKey==='moderate'?'#f59e0b':'#22c55e'}">${level}</div><div class="metric-lbl">Risk Level</div></div>
+      ${score !== '' ? `<div class="metric-card"><div class="metric-val" style="color:var(--accent)">${score}</div><div class="metric-lbl">Risk Score</div></div>` : ''}
+      <div class="metric-card"><div class="metric-val">${flags.length}</div><div class="metric-lbl">Flags</div></div>
+      <div class="metric-card"><div class="metric-val">${data.language_resolved?.toUpperCase() || 'EN'}</div><div class="metric-lbl">Language</div></div>`;
+
+    // Summary
+    document.getElementById('summaryBox').textContent = data.summary || 'No summary available.';
+
+    // Audio
+    if (data.audio_url) {
+      const audioSection = document.getElementById('audioSection');
+      const audioPlayer = document.getElementById('audioPlayer');
+      audioPlayer.src = API + data.audio_url;
+      audioSection.classList.remove('hidden');
+    }
+
+    // Risk flags / details
+    if (flags.length > 0) {
+      document.getElementById('riskDetails').innerHTML =
+        '<div style="margin-bottom:8px;" class="text-muted">Risk indicators identified:</div>' +
+        flags.map(f => `<span class="tag">⚡ ${f}</span>`).join('');
+    } else {
+      document.getElementById('riskDetails').innerHTML = '<div class="text-muted">No specific risk flags detected.</div>';
+    }
+
+    // Follow-up questions
+    const fup = data.follow_up?.questions || data.follow_up || [];
+    if (fup.length) {
+      document.getElementById('followUpCard').classList.remove('hidden');
+      document.getElementById('followUpList').innerHTML = fup.map(q => `<li>${q}</li>`).join('');
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // DOWNLOAD PDF
+  // ─────────────────────────────────────────────
+  function downloadPDF() {
+    if (!lastReportId) { toast('Process a report first', 'error'); return; }
+    window.open(API + '/export/pdf/' + lastReportId, '_blank');
+  }
+
+  // ─────────────────────────────────────────────
+  // CHATBOT
+  // ─────────────────────────────────────────────
+  function quickChat(msg) {
+    document.getElementById('chatInput').value = msg;
+    sendChat();
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    appendMsg(msg, 'user');
+    const typing = appendTyping();
+
+    try {
+      const r = await fetch(API + '/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: chatSessionId,
+          message: msg,
+          symptoms: lastSymptoms,
+          risk_level: lastRiskLevel,
+          language: document.getElementById('langSelect')?.value || 'en',
+        })
+      });
+      const data = await r.json();
+      typing.remove();
+      appendMsg(data.response || 'Sorry, I could not process that.', 'bot');
+    } catch {
+      typing.remove();
+      appendMsg('❌ Error contacting the AI. Please try again.', 'bot');
+    }
+  }
+
+  function appendMsg(text, role) {
+    const box = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg msg-' + role;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+
+  function appendTyping() {
+    const box = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg msg-bot typing';
+    div.innerHTML = '<span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+
+  // ─────────────────────────────────────────────
+  // TRANSLATE
+  // ─────────────────────────────────────────────
+  async function doTranslate() {
+    const text = document.getElementById('translateInput').value.trim();
+    const lang = document.getElementById('translateLang').value;
+    if (!text) { toast('Enter text to translate', 'error'); return; }
+
+    try {
+      const r = await fetch(API + '/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, target_language: lang })
+      });
+      const data = await r.json();
+      document.getElementById('translateOutput').textContent = data.translated_text;
+      document.getElementById('translateResult').classList.remove('hidden');
+
+      // Audio
+      const audioUrl = `/audio/explanation?text=${encodeURIComponent(data.translated_text)}&language=${lang}`;
+      const audioEl = document.getElementById('translateAudio');
+      audioEl.src = API + audioUrl;
+      document.getElementById('translateAudioSection').style.display = 'block';
+    } catch {
+      toast('❌ Translation failed', 'error');
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // OUTBREAKS
+  // ─────────────────────────────────────────────
+  async function loadOutbreaks() {
+    const region = document.getElementById('outbreakRegion')?.value || '';
+    const content = document.getElementById('outbreaksContent');
+    content.innerHTML = '<div style="text-align:center;padding:24px;"><div class="spinner spinner-dark" style="margin:0 auto 8px;"></div><div class="text-muted">Loading…</div></div>';
+    try {
+      const url = API + '/outbreaks' + (region ? '?region=' + encodeURIComponent(region) : '');
+      const r = await fetch(url);
+      const data = await r.json();
+      const clusters = data.clusters || [];
+      if (!clusters.length) {
+        content.innerHTML = '<div style="text-align:center;padding:24px;" class="text-muted">✅ No outbreak clusters detected.</div>';
+        return;
+      }
+      content.innerHTML = clusters.map(c => `
+        <div style="padding:12px 0;border-bottom:1px solid var(--border);">
+          <div style="font-weight:600;margin-bottom:4px;">📍 ${c.location || 'Unknown region'}</div>
+          <div class="text-muted" style="font-size:0.83em;">Cases: <strong>${c.count || 0}</strong> · Symptoms: ${(c.symptoms || []).join(', ')}</div>
+        </div>`).join('') || '<div class="text-muted">No data.</div>';
+    } catch {
+      content.innerHTML = '<div class="text-danger" style="padding:12px;">Failed to load outbreak data.</div>';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // DOCTOR ALERTS
+  // ─────────────────────────────────────────────
+  async function createAlert() {
+    const payload = {
+      doctor_name: document.getElementById('alertDoctor').value.trim(),
+      region: document.getElementById('alertRegion').value.trim(),
+      title: document.getElementById('alertTitle').value.trim(),
+      message: document.getElementById('alertMessage').value.trim(),
+    };
+    if (!payload.doctor_name || !payload.title || !payload.message) {
+      toast('Please fill in required fields', 'error');
+      return;
+    }
+    try {
+      const r = await fetch(API + '/doctor/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!r.ok) throw new Error('Failed');
+      toast('✅ Alert created', 'success');
+      ['alertDoctor','alertRegion','alertTitle','alertMessage'].forEach(id => document.getElementById(id).value = '');
+      loadAlerts();
+    } catch {
+      toast('❌ Failed to create alert', 'error');
+    }
+  }
+
+  async function loadAlerts() {
+    const region = document.getElementById('filterRegion')?.value || '';
+    const content = document.getElementById('alertsContent');
+    try {
+      const url = API + '/doctor/alerts' + (region ? '?region=' + encodeURIComponent(region) : '');
+      const r = await fetch(url);
+      const data = await r.json();
+      const alerts = data.alerts || [];
+      if (!alerts.length) {
+        content.innerHTML = '<div class="text-muted" style="padding:8px 0;">No alerts found.</div>';
+        return;
+      }
+      content.innerHTML = `
+        <table class="alerts-table">
+          <thead><tr><th>Doctor</th><th>Region</th><th>Title</th><th>Message</th></tr></thead>
+          <tbody>${alerts.map(a => `
+            <tr>
+              <td style="font-weight:600;">${a.doctor_name || ''}</td>
+              <td class="text-muted">${a.region || ''}</td>
+              <td>${a.title || ''}</td>
+              <td class="text-muted">${a.message || ''}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch {
+      content.innerHTML = '<div class="text-danger">Failed to load alerts.</div>';
+    }
+  }
+</script>
+</body>
+</html>
