@@ -1,0 +1,223 @@
+DIABETES MANAGEMENT REPORT
+==========================
+
+Patient Name: Suresh Reddy
+Age: 52 years | Gender: Male
+Date: March 6, 2024
+Report ID: MR-2024-005
+Diabetic Since: 2018 (6 years)
+
+VITAL SIGNS
+-----------
+Blood Pressure: 132/84 mmHg
+Temperature: 98.4°F
+Heart Rate: 78 bpm
+Weight: 78 kg | Height: 170 cm | BMI: 27.0 (Overweight)
+Waist Circumference: 98 cm
+
+CHIEF COMPLAINT
+---------------
+Routine diabetes follow-up visit.
+Reports occasional dizziness and increased urination.
+
+CURRENT MEDICATIONS
+-------------------
+- Metformin 500mg - Twice daily (before meals)
+- Glimepiride 2mg - Once daily (morning)
+- Atorvastatin 10mg - Once daily (night)
+- Aspirin 75mg - Once daily
+
+MEDICATION COMPLIANCE
+---------------------
+Patient reports:
+- Takes Metformin regularly (100%)
+- Sometimes misses evening Metformin dose (80%)
+- Regular with other medications
+- No side effects reported
+
+BLOOD SUGAR MONITORING
+----------------------
+Home Glucose Monitoring (Past week):
+
+Fasting Blood Sugar (FBS):
+- Day 1: 145 mg/dL
+- Day 2: 138 mg/dL
+- Day 3: 152 mg/dL
+- Day 4: 140 mg/dL
+- Day 5: 148 mg/dL
+- Day 6: 135 mg/dL
+- Day 7: 142 mg/dL
+Average FBS: 143 mg/dL (Target: <130 mg/dL)
+
+Post-Prandial (2 hours after meals):
+- Lunch PP: 185-210 mg/dL
+- Dinner PP: 175-195 mg/dL
+Average PP: 190 mg/dL (Target: <180 mg/dL)
+
+LABORATORY FINDINGS
+-------------------
+HbA1c: 7.8% (Target: <7.0%)
+    Previous 3 months ago: 8.2%
+    Trend: Improving but not at goal
+
+Lipid Profile (Fasting):
+- Total Cholesterol: 198 mg/dL (Target: <200)
+- LDL: 115 mg/dL (Target: <100 for diabetics)
+- HDL: 42 mg/dL (Low, Target: >40)
+- Triglycerides: 180 mg/dL (High, Target: <150)
+
+Kidney Function:
+- Serum Creatinine: 1.0 mg/dL (Normal)
+- eGFR: 88 mL/min (Normal)
+- Urine Albumin: 45 mg/g (Microalbuminuria)
+- Urine Protein: Trace
+
+Liver Function: Within normal limits
+
+Complete Blood Count:
+- Hemoglobin: 13.8 g/dL (Normal)
+- All other parameters normal
+
+DIABETIC COMPLICATIONS SCREENING
+---------------------------------
+EYES (Ophthalmology Report attached):
+- Mild non-proliferative diabetic retinopathy (both eyes)
+- No macular edema
+- Recommendation: Re-examine in 6 months
+
+FEET EXAMINATION:
+- Intact skin, no ulcers or infections
+- Peripheral pulses palpable
+- Monofilament test: Normal sensation
+- No fungal infections
+
+CARDIOVASCULAR ASSESSMENT:
+- ECG: Normal sinus rhythm
+- No chest pain or palpitations
+- Blood pressure slightly elevated
+
+IMPRESSION
+----------
+1. Type 2 Diabetes Mellitus - Suboptimal control (HbA1c 7.8%)
+2. Mild diabetic retinopathy (both eyes)
+3. Microalbuminuria (early kidney involvement)
+4. Dyslipidemia (high triglycerides, low HDL)
+5. Overweight (BMI 27.0)
+6. Pre-hypertension
+
+RISK ASSESSMENT
+---------------
+Current Status: MODERATE RISK
+- Improving trend in glucose control
+- Early signs of complications (eyes, kidneys)
+- Need for intensified management
+- Cardiovascular risk present
+
+RECOMMENDATIONS
+---------------
+
+1. MEDICATION ADJUSTMENTS:
+   - Increase Metformin to 850mg twice daily
+   - Continue Glimepiride 2mg
+   - Increase Atorvastatin to 20mg (for LDL and triglycerides)
+   - Add Ramipril 2.5mg once daily (for blood pressure and kidney protection)
+   - Continue Aspirin 75mg
+
+2. BLOOD SUGAR TARGETS:
+   - Fasting: <130 mg/dL
+   - Post-prandial: <180 mg/dL
+   - HbA1c goal: <7.0% in 3 months
+
+3. DIET MODIFICATIONS:
+   - Reduce carbohydrate intake (40-45% of total calories)
+   - Increase fiber (25-30g daily)
+   - Limit saturated fats
+   - Include omega-3 rich foods (fish, walnuts, flaxseeds)
+   - Portion control at meals
+   - Avoid sugary drinks and juices
+   - Eat more vegetables (fill half your plate)
+
+   Sample Meal Plan:
+   - Breakfast: Oats + nuts + milk (unsweetened)
+   - Mid-morning: Fruit (apple/guava)
+   - Lunch: 2 rotis + dal + vegetable + salad
+   - Evening: Nuts (handful) + green tea
+   - Dinner: 1-2 rotis + vegetables + curd
+
+4. EXERCISE PLAN:
+   - Walk 30-40 minutes daily (after dinner preferred)
+   - Include strength training 2-3 times/week
+   - Monitor blood sugar before and after exercise
+   - Aim for weight loss of 4-5 kg in 6 months
+
+5. MONITORING:
+   - Check fasting blood sugar 3 times weekly
+   - Check post-prandial sugar 2 times weekly
+   - Maintain glucose diary
+   - Check BP at home weekly
+   - Foot examination daily at home
+
+6. COMPLICATIONS PREVENTION:
+   - Continue annual eye examination
+   - Repeat kidney function tests in 3 months
+   - Annual ECG and cardiac evaluation
+   - Daily foot care and inspection
+   - Dental check-up every 6 months
+
+7. LIFESTYLE MODIFICATIONS:
+   - Quit smoking (if applicable)
+   - Limit alcohol to occasional use
+   - Stress management (meditation, yoga)
+   - Adequate sleep (7-8 hours)
+   - Stay hydrated (8-10 glasses water/day)
+
+PATIENT EDUCATION POINTS
+-------------------------
+✓ Diabetes is manageable with proper care
+✓ Medication compliance is crucial
+✓ Diet and exercise are as important as medications
+✓ Regular monitoring prevents complications
+✓ Early detection of complications allows better treatment
+✓ Foot care prevents serious infections
+✓ Maintain emergency glucose tabs for low blood sugar
+
+WARNING SIGNS - SEEK IMMEDIATE CARE
+------------------------------------
+⚠️ Blood sugar <70 mg/dL (hypoglycemia symptoms: sweating, trembling, confusion)
+⚠️ Blood sugar >300 mg/dL with vomiting or confusion
+⚠️ Severe chest pain or shortness of breath
+⚠️ Foot wound or infection that doesn't heal
+⚠️ Sudden vision changes
+⚠️ Persistent vomiting or diarrhea
+
+FOLLOW-UP SCHEDULE
+------------------
+- Phone consultation: 1 week (to check medication tolerance)
+- Clinic visit: 6 weeks (to review progress)
+- HbA1c recheck: 3 months
+- Lipid profile recheck: 3 months
+- Kidney function tests: 3 months
+- Eye examination: 6 months
+
+DIABETES CARE TEAM
+------------------
+Primary Physician: Dr. Lakshmi Iyer
+Endocrinologist: Dr. Rajesh Nair (if HbA1c doesn't improve)
+Ophthalmologist: Dr. Priya Kumar
+Dietitian: Ms. Sneha Rao (appointment scheduled)
+
+PROGNOSIS
+---------
+With improved medication compliance, diet, and exercise, significant improvement expected.
+Goal: HbA1c <7.0% within 6 months
+Continue monitoring for complications progression
+
+---
+Report Generated by: Dr. Lakshmi Iyer, MD (Diabetology & Internal Medicine)
+Clinic: Diabetes Care Center, Chennai
+Contact: +91-44-12345678
+Emergency: +91-44-87654321
+
+NEXT APPOINTMENT: April 17, 2024 at 10:00 AM
+
+PRESCRIPTION VALID FOR: 3 months
